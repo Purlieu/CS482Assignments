@@ -1,0 +1,54 @@
+#player-score, #computer-score {
+    padding: 20px 20px 20px 20px;
+}
+
+#deal, #hit, #stay {
+    text-align: center;
+    padding: 20px 20px 20px 20px;
+    background-color: white;
+    border-radius: 5px;
+    border-color: #ccc;
+    line-height: 1.5;
+}
+
+.card{
+    display: inline-block;
+    width: 74px;
+    height: 97px;
+}
+
+#player-score::before{
+    content: "Score: ";
+}
+
+#computer-score::before{
+    content: "Score: ";
+}
+
+#container {
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#deal:disabled{
+    cursor: not-allowed;
+    background-color: #eeeeee;
+
+}
+
+#deal {
+    cursor: auto;
+    background-color: white;
+}
+
+#stay:disabled{
+    cursor: not-allowed;
+    background-color: #eeeeee;
+}
+#stay {
+    cursor: auto;
+    background-color: white;
+}
