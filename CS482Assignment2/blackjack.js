@@ -12,7 +12,7 @@ let doneDealing, gameOver, computerDone;
 let playerContainsAce, computerContainsAce;
 let cScore, pScore;
 let width = 73, height = 98;
-let dealButton, hitButton, stayButton;
+let dealButton, hitButton, stayButton, winStatus;
 
 function makeDeck()
 {
@@ -95,12 +95,11 @@ function getCardValue(card, hand){
 }
 
 function checkBlackJackWinner(){
-    let winStatus = document.getElementById('status');
     pScore.innerHTML = playerScore;
     cScore.innerHTML = computerScore;
 
     if(doneDealing || playerHandCount >= 4 || playerScore >= 21){
-        if(computerScore < 17 || computerHandCount < 5) {
+        if(computerScore <= 17 || computerHandCount < 5) {
             document.getElementById('stay').click();
             computerDone = true;
         }
@@ -140,16 +139,16 @@ function checkBlackJackWinner(){
         }
     }
     if(gameOver){
-        disableStayButton();
-        enableDealButton();
+        stayButton.disabled = true;
+        dealButton.disabled = false;
     }
 }
 
 function drawComputerListener(hand){
     doneDealing = true;
-    disableHitButton();
+    hitButton.disabled = true;
     if(computerDone){
-        while(computerScore < 17 && computerHandCount <= 4){
+        while(computerScore <= 17 && computerHandCount <= 4){
             drawComputer(hand);
         }
     }
@@ -165,8 +164,7 @@ function drawComputer(hand){
             computerDone = true;
         }
         let card = deck.pop();
-        let cardVal = getCardValue(card, hand);
-        computerScore += cardVal;
+        computerScore += getCardValue(card, hand);
         createCardDiv(card, hand);
         checkBlackJackWinner();
     }
@@ -180,42 +178,14 @@ function drawPlayer(hand){
     playerHandCount = hand.childNodes.length;
     if ((playerHandCount <= 4 || playerScore < 21) && !doneDealing){
         let card = deck.pop();
-        let cardVal = getCardValue(card, hand);
-        playerScore += cardVal;
+        playerScore += getCardValue(card, hand);;
         createCardDiv(card, hand);
         if(hand.childNodes.length >= 5){
-            disableHitButton();
+            hitButton.disabled = true;
         }
         checkBlackJackWinner();
     }
     playerHandCount = hand.childNodes.length;
-}
-
-function disableHitButton(){
-    let hit = document.getElementById('hit');
-    hit.removeEventListener('click', hitListener);
-    hit.style.cursor = "not-allowed";
-    hit.style.backgroundColor = "#eeeeee";
-}
-
-function disableStayButton(){
-    let stay = document.getElementById('stay');
-    stay.removeEventListener('click', stayListener);
-    stay.style.cursor = "not-allowed";
-    stay.style.backgroundColor = "#eeeeee";
-}
-
-function enableDealButton(){
-    dealButton.addEventListener('click', deal);
-    dealButton.style.cursor = "auto";
-    dealButton.style.backgroundColor = "white";
-}
-
-function disableDealButton(){
-    dealButton.removeEventListener('click', deal);
-    dealButton.style.cursor = "not-allowed";
-    dealButton.innerHTML = "Deal";
-    dealButton.style.backgroundColor = "#eeeeee";
 }
 
 function resetGame(){
@@ -224,12 +194,6 @@ function resetGame(){
     computerHand.innerHTML = "";
     hand.innerHTML = "";
     doneDealing = false;
-
-    hitButton.style.cursor = "auto";
-    hitButton.style.backgroundColor = "white";
-
-    stayButton.style.cursor = "auto";
-    stayButton.style.backgroundColor = "white";
 
     let winStatus = document.getElementById('status');
     winStatus.innerHTML = "";
@@ -242,53 +206,29 @@ function resetGame(){
     gameOver = false;
     playerContainsAce = false;
     computerContainsAce = false;
-    disableDealButton();
-
+    stayButton.disabled = false;
+    hitButton.disabled = false;
+    dealButton.disabled = true;
 }
 
 
 function deal()
 {
-    disableHitButton();
     let playerHand = document.getElementById('player-cards');
     let computerHand = document.getElementById('computer-cards');
-    hitListener = function(){
-        drawPlayerListener(playerHand);
-    };
-    hitButton.addEventListener('click', hitListener);
-
-    stayListener = function(){
-        drawComputerListener(computerHand);
-    };
-    stayButton.addEventListener('click', stayListener);
-
-    dealButton.addEventListener('click', deal);
-
     resetGame();
-    if(deck.length < 11){
-        dealButton.innerHTML = "Play Again?";
-        dealButton.addEventListener('click', start);
-        dealButton.style.cursor = "auto";
-        dealButton.style.backgroundColor = "white";
-        pScore.innerHTML = "Game Over!";
-        cScore.innerHTML = "";
-        disableStayButton();
-        disableHitButton()
-
+    makeDeck();
+    shuffleDeck(deck);
+    for (let i = 0; i < 2; i++) {
+        drawPlayer(playerHand);
     }
-    else {
-        dealButton.removeEventListener('click', start);
-        shuffleDeck(deck);
-        for (let i = 0; i < 2; i++) {
-            drawPlayer(playerHand);
-        }
-        drawComputer(computerHand);
-        computerDone = true;
+    drawComputer(computerHand);
+    computerDone = true;
 
-        let winStatus = document.getElementById('status');
-        winStatus.innerHTML = "";
-        checkBlackJackWinner();
-    }
+    let winStatus = document.getElementById('status');
+    winStatus.innerHTML = "";
+    checkBlackJackWinner();
+
 }
 
 function start(){
@@ -297,10 +237,24 @@ function start(){
     dealButton = document.getElementById('deal');
     hitButton = document.getElementById('hit');
     stayButton = document.getElementById('stay');
+    winStatus = document.getElementById('status');
 
-    resetGame();
-    makeDeck();
-    shuffleDeck(deck);
+    let playerHand = document.getElementById('player-cards');
+    let computerHand = document.getElementById('computer-cards');
+    hitListener = function(){
+        drawPlayerListener(playerHand);
+    };
+    hitButton.addEventListener('click', function(){
+        drawPlayer(playerHand)
+    });
+
+    stayListener = function(){
+        drawComputerListener(computerHand);
+    };
+    stayButton.addEventListener('click', stayListener);
+
+    dealButton.addEventListener('click', deal);
+
     deal();
 }
 window.addEventListener("load", start);

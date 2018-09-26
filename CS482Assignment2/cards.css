@@ -33,10 +33,18 @@
     transform: translate(-50%, -50%);
 }
 
+#hit {
+    cursor: auto;
+    background-color: white;
+}
+
+#hit:disabled{
+    cursor: not-allowed;
+    background-color: #eeeeee;
+}
 #deal:disabled{
     cursor: not-allowed;
     background-color: #eeeeee;
-
 }
 
 #deal {
